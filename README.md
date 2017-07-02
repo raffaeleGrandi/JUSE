@@ -1,4 +1,4 @@
-# juse
+# JUSE
 Java Unibot Simulation Environment (J.U.S.E.)
 @author Raffaele Grandi
 Period: April 2008 - July 2011
