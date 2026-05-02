@@ -2,71 +2,55 @@ package jusePack.structures;
 
 import java.util.List;
 
-import javax.swing.SwingUtilities;
-
-import jusePack.gui.panels.ArenaPanel;
 import jusePack.units.*;
 import jusePack.units.collisions.CollisionDetector;
 import jusePack.utils.Const;
 
-public class UnitsManager implements Runnable{
+/**
+ * Gestisce il loop fisico della simulazione su un virtual thread dedicato.
+ *
+ * Con il rilevamento collisioni geometrico, il loop è completamente
+ * disaccoppiato dalla GUI: non è più necessario catturare immagini
+ * dal pannello né sincronizzarsi con l'EDT di Swing via invokeAndWait.
+ * Il collision detector viene chiamato ogni ciclo per ogni robot attivo —
+ * essendo puro calcolo geometrico, il costo è trascurabile rispetto al
+ * timeSample (~100ms).
+ */
+public class UnitsManager implements Runnable {
 
 	private Thread thread;
 	private List<RobotDummy> unitsVector;
 	private CollisionDetector cd;
-	private ArenaPanel arenaPanelLink;
-	public volatile boolean activeStatus = false;
+	private volatile boolean activeStatus = false;
 	private double timeSample = Const.timeSample;
 
-	public UnitsManager(ArenaPanel arenaPanelRef, CollisionDetector collDetect){
+	public UnitsManager(CollisionDetector collDetect) {
 		cd = collDetect;
-		arenaPanelLink = arenaPanelRef;
-		if (arenaPanelLink == null) System.out.println("NULL");
-	}//constructor
+	}
 
-	/* Prima di qualunque operazione di detecting è necessario configurare il numero di robot presenti nello scenario */
-	/* Viene eseguito da JuseManager */
-
-	public void setUnitsVector(List<RobotDummy> dummyVec){
+	public void setUnitsVector(List<RobotDummy> dummyVec) {
 		unitsVector = dummyVec;
-	}//setUnitVector
-
-	private void updateArenaImage() {
-		try {
-			SwingUtilities.invokeAndWait(() -> cd.arenaImage = Const.getPanelImage(arenaPanelLink));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 
 	public void start() {
 		thread = Thread.ofVirtual().name("units-manager").start(this);
 	}
 
-	public void run(){
+	public void stop() {
+		activeStatus = false;
+		if (thread != null) thread.interrupt();
+	}
+
+	public void run() {
 		activeStatus = true;
 		while (activeStatus) {
-			for (int i=0; i < unitsVector.size(); i++) {
+			for (int i = 0; i < unitsVector.size(); i++) {
 				RobotUnit tempUnit = unitsVector.get(i);
-				if (tempUnit.isActive()){
-					UnitObject tempUnitObj = tempUnit.getUnitObject();
-					if (tempUnitObj.valid_displacement()){
-						updateArenaImage();
-						cd.testUnitforCollisions(tempUnitObj);
-						tempUnit.evaluateMovement(timeSample);
-					}
-
-					else if (!tempUnit.collisionStatus)	tempUnit.moveUnit(timeSample);
-						else {
-							if(tempUnit.evaluateRotation()){
-								tempUnit.moveUnit(timeSample);
-								updateArenaImage();
-								cd.testUnitforCollisions(tempUnitObj);
-								tempUnit.detectCollisions();
-							}
-						}
+				if (tempUnit.isActive()) {
+					cd.testUnitForCollisions(tempUnit.getUnitObject());
+					tempUnit.evaluateMovement(timeSample);
 				}
-			}//for
+			}
 			try {
 				Thread.sleep((long)(timeSample * 1000));
 			} catch (InterruptedException e) {
@@ -74,6 +58,6 @@ public class UnitsManager implements Runnable{
 				break;
 			}
 		}
-	}//run
+	}
 
-}//CollisionsManager
+}

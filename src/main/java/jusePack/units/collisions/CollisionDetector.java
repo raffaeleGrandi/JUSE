@@ -1,103 +1,162 @@
 package jusePack.units.collisions;
 
 import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
+import jusePack.ArenaObjects.Obstacle;
 import jusePack.ArenaObjects.ObjectID;
-import jusePack.gui.panels.*;
 import jusePack.units.UnitObject;
 import jusePack.utils.Const;
+import jusePack.utils.Position;
 
+/**
+ * Rilevamento collisioni basato su ray casting geometrico.
+ *
+ * Sostituisce il precedente approccio pixel-based (cattura BufferedImage
+ * dalla GUI + campionamento colori) con test geometrici puri sulle forme
+ * degli ostacoli. Questo elimina la dipendenza da SwingUtilities.invokeAndWait()
+ * nel loop fisico, disaccoppiando completamente la simulazione dalla GUI.
+ *
+ * Per ogni robot vengono lanciati 18 raggi (uno per sensore) dall'origine
+ * del robot nella direzione assoluta del sensore. Per ogni raggio si cerca
+ * l'intersezione più vicina con gli ostacoli della scena e con i bordi
+ * dell'arena. Il valore del sensore è la distanza in pixel dalla superficie
+ * del robot all'ostacolo rilevato.
+ *
+ * Nota: nel sistema originale i robot potevano rilevare altri robot tramite
+ * i pixel colorati. In questo modello geometrico i robot testano solo gli
+ * ostacoli statici. Il rilevamento robot-robot può essere aggiunto in futuro
+ * passando le posizioni degli altri robot come forme circolari temporanee.
+ */
 public class CollisionDetector {
 
-	private CollisionPanel collPanelLink;
-	public BufferedImage arenaImage; // DEVE essere settata dal UnitManager
-	public List<Color> excludedColor = new ArrayList<>(); //viene usato da JuseManager per aggiungere i colori da escludere
-	public int sensorsCheckingRange =  Const.sensorsCheckingRange0;
-	double dFactor = Const.latoCasella;
+    private final List<CollidableShape> shapes;
+    private final double robotRadiusPx;
+    private final double bumpRangePx;
+    private final double cellSizePx;
 
-	public CollisionDetector(CollisionPanel collisionPanelRef){
-		collPanelLink = collisionPanelRef;
-		collPanelLink.panelActive = true;
-		excludedColor.add(Const.arenaFloorColor1);
-		excludedColor.add(Const.arenaFloorColor2);
-		excludedColor.add(Const.sensorRangeColor);
-	}
+    /**
+     * @param obstacles lista degli ostacoli dello scenario corrente
+     */
+    public CollisionDetector(List<Obstacle> obstacles) {
+        this.robotRadiusPx = Const.unitRadius;
+        this.bumpRangePx   = Const.sensorsCheckingRange0;
+        this.cellSizePx    = Const.cellSize;
+        this.shapes        = buildShapes(obstacles);
+    }
 
-	public synchronized void testUnitforCollisions(UnitObject testUnit){
-		ObjectID unitToTestID = testUnit.getID();
-		testUnit.bumpSensors.resetSensors();
-		sensorsCheckingRange = (int)(dFactor*testUnit.sensorRange); //in pixel 15 = 1 casella
-		if(Const.cmnt)System.out.println("\nCD>detecting for unit #"+unitToTestID.getIDnum()+" scr = "+sensorsCheckingRange);
+    // ---------------------------------------------------------
+    //  Costruzione delle forme geometriche dalla lista ostacoli
+    // ---------------------------------------------------------
 
-		Point2D unitLoc = unitToTestID.getPos();
-		if(Const.cmnt)System.out.println("\nCD>unitPosition: "+unitLoc);
-		double unitCenterX = dFactor*unitLoc.getX(); 	//convertito in pixel
-		double unitCenterY = dFactor*unitLoc.getY();	//convertito in pixel
-		double unitAng = unitToTestID.getAngle();
-		//double alpha0 = Math.toRadians(unitAng) + Const.angleLag2D3D; // definisce il davanti dell'unita
-		double alpha0 = unitAng;
+    private List<CollidableShape> buildShapes(List<Obstacle> obstacles) {
+        List<CollidableShape> result = new ArrayList<>();
 
-		//collPanelLink.clearCollisionsVector();
-		//collPanelLink.addCollisionPoint(new Point2D.Double(unitCenterX,unitCenterY));
+        // Bordi dell'arena come rettangoli sottili axis-aligned (spessore 2px)
+        double aw = Const.arenaWidth;
+        double ah = Const.arenaHeight;
+        result.add(new RectShape(0,      ah / 2, 2, ah, 0));  // bordo sinistro
+        result.add(new RectShape(aw,     ah / 2, 2, ah, 0));  // bordo destro
+        result.add(new RectShape(aw / 2, 0,      aw, 2, 0));  // bordo superiore
+        result.add(new RectShape(aw / 2, ah,     aw, 2, 0));  // bordo inferiore
 
-		for(int i = 0; i < (Const.numSensori); i++){
-			//System.out.println("CD>Sensore "+i);
-			double delta = testUnit.bumpSensors.getSensorAngle(i); // già in radianti
-			double alpha = alpha0 + delta;
-			if(Const.cmnt)System.out.println("Angoli: alpha0="+alpha0+"; delta="+delta+";alpha="+alpha);
-			boolean trovata = false;
-			int sensDist = 1; //in pixel: non può essere minore di 1;
-			int k = 1;//costante di aggiustamento della distanza sensore
-			while ((!trovata)&&(sensDist < sensorsCheckingRange)){
-				int checkpointX = (int)(unitCenterX + (Const.unitRadius+k+sensDist)*Math.cos(alpha));
-				int checkpointY = (int)(unitCenterY + (Const.unitRadius+k+sensDist)*Math.sin(alpha));
-			//	collPanelLink.addCollisionPoint(new Point2D.Double(checkpointX,checkpointY)); //verifica sul collision Panel il checking point
-			//	System.out.println("Arena CheckPoint: ["+checkpointX+","+checkpointY+"]");
-				Color checkedColor = new Color(arenaImage.getRGB(checkpointX, checkpointY));
-				if (sensDist < Const.sensorsCheckingRange0){//lavoro sui bumper
-					if (!excludedColor.contains(checkedColor)) {
-						testUnit.bumpSensors.setSensorValue(i, sensDist);
-						testUnit.irSensors.setSensorValue(i, sensDist);
-					//	collPanelLink.addCollisionPoint(new Point2D.Double(checkpointX,checkpointY));
-						System.out.println("CD>Active BumpSensor #"+i+", sensorAngle: "+Math.toDegrees(delta)+", sensDist: "+sensDist);
-						trovata = true;
-					}
-					else {testUnit.bumpSensors.setSensorValue(i, 0);}
-					testUnit.bumpSensors.setCheckingPoint(i,new Point2D.Double(checkpointX/dFactor,checkpointY/dFactor)); // convertito in "caselle"
-				}//end if bumpers
-				else {//lavoro sui sensori infrosso
-					if (!excludedColor.contains(checkedColor)) {
-						testUnit.irSensors.setSensorValue(i, sensDist);
-					//	collPanelLink.addCollisionPoint(new Point2D.Double(checkpointX,checkpointY));
-						if(Const.cmnt)System.out.println("CD>Active IRSensor #"+i+", sensorAngle: "+Math.toDegrees(delta)+", sensDist: "+sensDist);
-						trovata = true;
-					}
-					else {
-						testUnit.irSensors.resetSensorValue(i);
-					}
-					testUnit.irSensors.setCheckingPoint(i,new Point2D.Double(checkpointX/dFactor,checkpointY/dFactor)); // convertito in "caselle"
-				}//end else infrarossi
-				sensDist+=1;
-			}//while
-		}//for
-		if(Const.cmnt)System.out.println("\nCD>end detection for unit #"+unitToTestID.getIDnum());
-	}//detectCollisions
+        for (Obstacle obs : obstacles) {
+            ObjectID id = obs.getID();
+            // Posizione centro in pixel (tutte le forme usano il centro come origine)
+            double px    = id.getPos().x * cellSizePx;
+            double py    = id.getPos().y * cellSizePx;
+            double w     = id.getDim().width  * cellSizePx;
+            double h     = id.getDim().height * cellSizePx;
+            double angle = id.getAngle();
 
-	/*
-	private BufferedImage getPanelImage(JPanel tempPanel){
-        BufferedImage panelImage = new BufferedImage(tempPanel.getWidth(), tempPanel.getHeight(),BufferedImage.TYPE_INT_RGB);
-        Graphics2D graphicBuffer = panelImage.createGraphics();
-        tempPanel.paint(graphicBuffer);
-        return panelImage;
-	}
-	*/
+            switch (id.getType()) {
+                case OBSTACLE_RECT -> result.add(new RectShape(px, py, w, h, angle));
+                case OBSTACLE_OVAL -> result.add(new OvalShape(px, py, w, h));
+                default -> {}
+            }
+        }
+        return result;
+    }
 
-	/****************************************************************************************************************************/
+    // ---------------------------------------------------------
+    //  Aggiornamento sensori per un robot
+    // ---------------------------------------------------------
 
-}// end class
+    /**
+     * Calcola i valori di tutti i sensori del robot tramite ray casting.
+     * Aggiorna bump sensors (contatto fisico) e IR sensors (campo di rilevamento).
+     */
+    public void testUnitForCollisions(UnitObject testUnit) {
+        SensorArray bumpSensors = testUnit.getBumpSensors();
+        SensorArray irSensors   = testUnit.getIrSensors();
+        bumpSensors.resetSensors();
+        irSensors.resetSensors();
 
+        double sensorRangePx = cellSizePx * testUnit.getSensorRange();
+        double maxRayDist    = robotRadiusPx + sensorRangePx;
 
+        Position pos   = testUnit.getExactPos();
+        double cx      = pos.x * cellSizePx;
+        double cy      = pos.y * cellSizePx;
+        double heading = pos.theta;
+
+        if (Const.debugEnabled)
+            System.out.println("\nCD>rilevamento unità #" + testUnit.getIDnum()
+                + " pos:(" + pos.x + "," + pos.y + ") range:" + sensorRangePx + "px");
+
+        for (int i = 0; i < Const.sensorCount; i++) {
+            double sensorAngle = heading + irSensors.getSensorAngle(i);
+            double dx = Math.cos(sensorAngle);
+            double dy = Math.sin(sensorAngle);
+
+            double nearestDist = findNearestHit(cx, cy, dx, dy, maxRayDist);
+
+            if (nearestDist >= 0) {
+                // Distanza dalla superficie del robot (clamped a 0 se il robot sovrappone l'ostacolo)
+                int surfaceDist = (int) Math.max(0, nearestDist - robotRadiusPx);
+
+                // IR sensor: distanza in pixel dalla superficie del robot
+                irSensors.setSensorValue(i, surfaceDist);
+                irSensors.setCheckingPoint(i, new Point2D.Double(
+                    (cx + nearestDist * dx) / cellSizePx,
+                    (cy + nearestDist * dy) / cellSizePx
+                ));
+
+                // Bump sensor: attivo solo se l'ostacolo è entro il range di contatto fisico
+                if (surfaceDist < bumpRangePx) {
+                    // Garantiamo valore >= 1 affinché il counter di SensorArray.isEmpty() funzioni
+                    bumpSensors.setSensorValue(i, Math.max(1, surfaceDist));
+                    bumpSensors.setCheckingPoint(i, irSensors.getCheckPoint(i));
+                    if (Const.debugEnabled)
+                        System.out.println("CD>BumpSensor #" + i
+                            + " angolo:" + String.format("%.1f", Math.toDegrees(irSensors.getSensorAngle(i)))
+                            + "° dist:" + surfaceDist + "px");
+                }
+            }
+            // Se nessun ostacolo entro maxRayDist, i sensori mantengono il valore di reset:
+            // 0 per bump (nessun contatto), 255 per IR (nessun ostacolo nel campo)
+        }
+
+        if (Const.debugEnabled)
+            System.out.println("CD>fine rilevamento unità #" + testUnit.getIDnum());
+    }
+
+    // ---------------------------------------------------------
+    //  Ray casting contro tutte le forme della scena
+    // ---------------------------------------------------------
+
+    private double findNearestHit(double ox, double oy,
+                                   double dx, double dy,
+                                   double maxDist) {
+        double nearest = -1;
+        for (CollidableShape shape : shapes) {
+            double d = shape.rayIntersect(ox, oy, dx, dy, maxDist);
+            if (d >= 0 && (nearest < 0 || d < nearest)) {
+                nearest = d;
+            }
+        }
+        return nearest;
+    }
+
+}

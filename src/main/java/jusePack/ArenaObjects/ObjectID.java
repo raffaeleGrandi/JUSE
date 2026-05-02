@@ -26,7 +26,7 @@ public class ObjectID {
 	
 	public void setIDnum(int objIDnumber){objIDnum = objIDnumber;}
 	
-	public synchronized Position getPos(){return objPos;} //unziona anche come getLoc in quanto objPos è un'estensione di Point2D
+	public synchronized Position getPos(){return objPos;}
 	
 	public synchronized void setPos(Position newPos){objPos = newPos;}
 

@@ -4,72 +4,71 @@ import java.awt.geom.Point2D;
 
 import jusePack.ArenaObjects.ArenaObjectABS;
 import jusePack.ArenaObjects.ObjectID;
-import jusePack.structures.UnitsManager;
 import jusePack.units.collisions.*;
 import jusePack.utils.Const;
 import jusePack.utils.Position;
 
 public class UnitObject extends ArenaObjectABS {
-	
-	public CollisionHandler collHand;	
-	public UnitsManager collMng = null; // viene settato da RobotUnit
-	public ArraySensori bumpSensors; //vengono usati dal CollisionDetector e dal CollisionHandler
-	public ArraySensori irSensors; //vengono settati dal CollisionDetector e usati da RobotUnit
-	public double sensorRange;
+
+	private CollisionHandler collHand;
+	private SensorArray bumpSensors;
+	private SensorArray irSensors;
+	private double sensorRange;
 	private Position oldPos;
-		
-	double wheelRadius = 0.25; //casella
-	double wheelsDistance = 2; //caselle	
-					
+
+	double wheelRadius = 0.25; // cells
+	double wheelsDistance = 2; // cells
+
 	public UnitObject(ObjectID unitIDref, double sensRange){
 		super(unitIDref);
-		bumpSensors = new ArraySensori();
-		irSensors = new ArraySensori(255);
-		collHand = new CollisionHandler(this);
-		sensorRange = sensRange < Const.sensorsCheckingRangeMin  ? Const.sensorsCheckingRangeMin : sensRange; //caselle 
+		bumpSensors = new SensorArray();
+		irSensors = new SensorArray(255);
+		collHand = new CollisionHandler(bumpSensors);
+		sensorRange = sensRange < Const.sensorsCheckingRangeMin ? Const.sensorsCheckingRangeMin : sensRange;
 		oldPos = this.getExactPos();
-	}//end constructor	
-	
+	}
+
 	public ObjectID getObjID(){ return this.objectID;}
-	
+
 	public int getIDnum(){return objectID.getIDnum();}
-	
+
+	public SensorArray getBumpSensors(){ return bumpSensors; }
+
+	public SensorArray getIrSensors(){ return irSensors; }
+
+	public double getSensorRange(){ return sensorRange; }
+
 	public void setPos(Position newPos){ objectID.setPos(newPos);}
-	
+
 	public void setLoc(Point2D newLoc){ objectID.setLoc(new Point2D.Double(newLoc.getX(),newLoc.getY())); }
-	
-	public Position getExactPos(){return objectID.getPos();} // serve per il TargetPanel
-	
+
+	public Position getExactPos(){return objectID.getPos();}
+
 	public Position getOldPos(){ return oldPos;}
-	
+
 	public double getExactAngle(){return objectID.getAngle();}
-	
+
 	/***********************************************************************************************************/
 
-	/*
-	 * Il calcolo del displacement deve essere fatto in pixel non in caselle e 
-	 * quindi seleziono
-	 */
-	
-	public boolean valid_displacement(){ 
-		Position currPos = this.getExactPos();		
-		if ((currPos.distance(oldPos)*15)>=1) {
-			oldPos = currPos;	
+	public boolean hasValidDisplacement(){
+		Position currPos = this.getExactPos();
+		if ((currPos.distance(oldPos) * Const.cellSize) >= 1) {
+			oldPos = currPos;
 			return true;
 		}
-		else return false;		
-	}//valid_displacement
-	
+		else return false;
+	}
+
 	public void resetToOldPosition(){setPos(oldPos);}
-	
+
 	/***********************************************************************************************************/
-	
-	public boolean detectCollisions(int dir){		
+
+	public boolean detectCollisions(int dir){
 		boolean collisionDetect = false;
 		if (dir != 0){
 			collisionDetect = collHand.detectCollisions(dir);
 		}
 		return collisionDetect;
-	}//detectCollisions
-	
-} // end class
+	}
+
+}

@@ -1,58 +1,28 @@
 package jusePack.gui.panels;
 
-import java.awt.*;
-import java.awt.geom.Point2D;
-import java.util.ArrayList;
-import java.util.List;
-import javax.swing.JPanel;
-
-import jusePack.utils.Const;
-
-@SuppressWarnings("serial")
-public class CollisionPanel extends JPanel{
-
-	private Graphics cgc; //collision graphic component
-	private List<Point2D> cpv;
-	private int cpvIndex = 0;
-	private static final int MAX_SIZE = 100;
-	private double scaleFactor;
-	public boolean panelActive = false; //attivato dal CollisionDetector
-
-	public CollisionPanel(){
-		setDoubleBuffered(true);
-		setSize(Const.auxGPanelDim);
-		scaleFactor = Const.auxGPanelScaleFactor;
-		cpv = new ArrayList<>();
-	}
-
-	public void paint(Graphics g){
-		super.paintComponent(g);
-		cgc = g;
-		drawBackground();
-		if (panelActive){ drawCollisions();	}
-	}
-
-	public void addCollisionPoint(Point2D cp){
-		if (cpvIndex < cpv.size()) {
-			cpv.set(cpvIndex, cp);
-		} else {
-			cpv.add(cp);
-		}
-		cpvIndex++;
-		cpvIndex %= MAX_SIZE;
-	}
-
-	public void clearCollisionsVector(){cpv.clear(); cpvIndex = 0;}
-
-	private void drawBackground(){ setBackground(Const.collisionPanelColor); }
-
-	private void drawCollisions(){
-		for (Point2D cPoint : cpv){
-			int cPointX = (int)(cPoint.getX()*scaleFactor);
-			int cPointY = (int)(cPoint.getY()*scaleFactor);
-			cgc.setColor(Const.collisionColor);
-			cgc.drawLine(cPointX, cPointY, cPointX, cPointY);
-		}
-	}
-
-}// end collisionPanel
+/**
+ * RIMOSSO DAL SIMULATORE
+ *
+ * Questa classe era originariamente usata come pannello di debug per visualizzare
+ * i punti di collisione rilevati dai sensori durante la simulazione.
+ *
+ * L'idea di design originale (non implementata) era di usare la raccolta dei punti
+ * di collisione per costruire una memoria condivisa dello sciame: ogni robot avrebbe
+ * contribuito i propri punti di contatto a una mappa di densità globale, con un
+ * fattore di "evaporazione" variabile nel tempo (ispirato alla stigmergia delle colonie
+ * di formiche). Questa mappa avrebbe potuto essere usata per identificare zone ad alta
+ * densità di ostacoli e calcolare percorsi liberi, come supporto agli algoritmi di
+ * ottimizzazione basati su sciame (PSO).
+ *
+ * Tale funzionalità appartiene allo strato degli algoritmi dei robot,
+ * non al simulatore. Se si vorrà implementarla in futuro, andrà realizzata
+ * come componente separata a livello di scenario/robot e non dipenderà
+ * dalla rappresentazione visiva delle collisioni.
+ *
+ * Il rilevamento collisioni è ora puramente geometrico (CollisionDetector)
+ * e non richiede alcun pannello ausiliario.
+ */
+@Deprecated
+public class CollisionPanel {
+    private CollisionPanel() {}
+}

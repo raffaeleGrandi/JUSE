@@ -10,26 +10,28 @@ import jusePack.utils.Position;
 
 public abstract class RobotDummy extends RobotUnit implements ActionListener {
 
-	public Timer faultTimer = null;	
-		
+	private Timer faultTimer = null;
+
 	public RobotDummy(int unitIDnum, Position unitPos, double sensRange, int faultTime, Color unitColor){
-		super(unitIDnum,unitPos,sensRange,unitColor);	
+		super(unitIDnum,unitPos,sensRange,unitColor);
 		if ((faultTime) >= 0){
-			faultTimer = new Timer(faultTime, this);			
-		}		
-	}//RobotDummy
-	
-	public RobotDummy(int unitIDnum,Position unitPos,double sensRange){
+			faultTimer = new Timer(faultTime, this);
+		}
+	}
+
+	public RobotDummy(int unitIDnum, Position unitPos, double sensRange){
 		this(unitIDnum,unitPos,sensRange,-1,Const.unitColor);
 	}
-		
+
+	public Timer getFaultTimer(){ return faultTimer; }
+
 	public void setActive(boolean status){ activeStatus = status; }
-	
+
 	public abstract void executeLoop();
-	
-	public void actionPerformed(ActionEvent e){		
+
+	public void actionPerformed(ActionEvent e){
 		faultTimer.stop();
 		activeStatus = false;
-	}//actionPerformed	
-	
-}//RobotDummy
+	}
+
+}

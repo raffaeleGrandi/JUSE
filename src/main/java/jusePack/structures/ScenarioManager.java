@@ -8,59 +8,50 @@ import jusePack.units.RobotDummy;
 
 public class ScenarioManager {
 
-	List<Obstacle> obstVector;
-	List<RobotDummy> dummyVector;
-	public boolean unitsMNGset = false;
+	private List<Obstacle> obstacles;
+	private List<RobotDummy> robots;
+	private boolean unitsManagerSet = false;
 
 	public ScenarioManager(){
-		dummyVector = new ArrayList<>();
-		obstVector = new ArrayList<>();
-	}//ScenarioBuilder
-
-	public void addRobot(RobotDummy robot){	dummyVector.add(robot); }
-
-	public void addObstacle(Obstacle obstacle){ obstVector.add(obstacle);}
-
-	public List<RobotDummy> getRobotsVector(){ return dummyVector; }
-
-	public List<Obstacle> getObstaclesVector(){ return obstVector; }
-
-	public int getNumRobots(){ return dummyVector.size();}
-
-	public int getNumObstacles(){ return obstVector.size();}
-
-	public void removeRobot(int index){ dummyVector.remove(index);}
-
-	/*
-	public void removeObstacle(int index){
-		obstVector.remove(index);
-		---> Arena Refresh <----
+		robots = new ArrayList<>();
+		obstacles = new ArrayList<>();
 	}
 
-	public void moveObstacle(int index, Position newPos){
-		obstVector.get(index).setPos(newPos);
-	}
-	*/
+	public void addRobot(RobotDummy robot){ robots.add(robot); }
+
+	public void addObstacle(Obstacle obstacle){ obstacles.add(obstacle);}
+
+	public List<RobotDummy> getRobots(){ return robots; }
+
+	public List<Obstacle> getObstacles(){ return obstacles; }
+
+	public int getNumRobots(){ return robots.size();}
+
+	public int getNumObstacles(){ return obstacles.size();}
+
+	public void removeRobot(int index){ robots.remove(index);}
+
+	public void setUnitsManagerSet(boolean set){ this.unitsManagerSet = set; }
 
 	public void enableRobots(){
-		if (unitsMNGset){
-			for(int i = 0; i < dummyVector.size(); i++){
-				RobotDummy dummyTemp = dummyVector.get(i);
-				if (dummyTemp.faultTimer!=null) dummyTemp.faultTimer.start();
+		if (unitsManagerSet){
+			for(int i = 0; i < robots.size(); i++){
+				RobotDummy dummyTemp = robots.get(i);
+				if (dummyTemp.getFaultTimer()!=null) dummyTemp.getFaultTimer().start();
 				dummyTemp.start();
 			}
 		}
 		else { System.err.println("ERROR: unable to start robots - unitsManager not set");}
-	}//end enableRobots
+	}
 
 	public void disableRobots(){
-		for(int i = 0; i < dummyVector.size(); i++){
-			dummyVector.get(i).setActive(false);
+		for(int i = 0; i < robots.size(); i++){
+			robots.get(i).setActive(false);
 		}
-	}//end disableRobots
+	}
 
 	public void disableRobot(int index){
-		dummyVector.get(index).setActive(false);
-	}//disableRobot
+		robots.get(index).setActive(false);
+	}
 
-}//end ScenarioManager
+}

@@ -1,47 +1,36 @@
 package jusePack.units.collisions;
 
-import jusePack.units.UnitObject;
 import jusePack.utils.Const;
 
-/*
- * Il CollisionHandler gestisce i bumperSensors mentre i sensori "infrarossi" sono letti direttamente dall'agente.
- * 
- * */
-
 public class CollisionHandler {
-	
-	private ArraySensori unitSensors;
-	private boolean fwdCollisionDetect,bwdCollisionDetect;
 
-	public CollisionHandler(UnitObject unitOwn){
-		unitSensors = unitOwn.bumpSensors;
+	private SensorArray unitSensors;
+
+	public CollisionHandler(SensorArray bumpSensors){
+		unitSensors = bumpSensors;
 	}
-	
-	public boolean detectCollisions(int dir){ // metodo chiamato dalla ruo
-		boolean collisionFound;	
-		if(Const.cmnt)System.out.println(unitSensors.toString());
-		if (unitSensors.isEmpty()) collisionFound = false; 
-		else 
+
+	public boolean detectCollisions(int dir){
+		boolean collisionFound;
+		if(Const.debugEnabled)System.out.println(unitSensors.toString());
+		if (unitSensors.isEmpty()) collisionFound = false;
+		else
 			if ((dir > 0) && checkFWDgroup() || (dir < 0) && checkBWDgroup()){ collisionFound = true; }
-			else collisionFound = false; // le collisioni lateriali non sono trattate				
-		return collisionFound;		
+			else collisionFound = false;
+		return collisionFound;
 	}
-	
+
 	private boolean checkFWDgroup(){
 		int collisionSum = 0;
-		for(int j=0; j<3; j++){collisionSum += unitSensors.getSensorValue(j);} // attenzione se cambia il numero di sensori!!!!
-		for(int j=16; j<18; j++){collisionSum += unitSensors.getSensorValue(j);} // attenzione se cambia il numero di sensori!!!!
-		if (collisionSum!=0) fwdCollisionDetect = true;		
-		else fwdCollisionDetect = false;
-		return fwdCollisionDetect;
+		for(int j=0; j<3; j++){collisionSum += unitSensors.getSensorValue(j);}
+		for(int j=16; j<Const.sensorCount; j++){collisionSum += unitSensors.getSensorValue(j);}
+		return collisionSum != 0;
 	}
-	
+
 	private boolean checkBWDgroup(){
 		int collisionSum = 0;
 		for(int j=7; j<12; j++){collisionSum += unitSensors.getSensorValue(j);}
-		if (collisionSum!=0) bwdCollisionDetect = true;		
-		else bwdCollisionDetect = false;
-		return bwdCollisionDetect;
-	}	
-	
-}// end class
+		return collisionSum != 0;
+	}
+
+}

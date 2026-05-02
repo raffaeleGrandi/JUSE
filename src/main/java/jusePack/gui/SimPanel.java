@@ -15,7 +15,6 @@ import jusePack.units.RobotDummy;
 import jusePack.utils.Const;
 import jusePack.utils.LogArea;
 
-
 @SuppressWarnings("serial")
 public class SimPanel extends JPanel implements ActionListener{
 
@@ -25,7 +24,7 @@ public class SimPanel extends JPanel implements ActionListener{
 	protected Timer repainter;
 
 	public SimPanel(Dimension mainPanelDim, String logAreaInit, List<RobotDummy> dummyVector, List<Obstacle> obstVector) {
-		dimPanel = mainPanelDim; //righe x colonne
+		dimPanel = mainPanelDim;
 		logArea = new LogArea(logAreaInit,5,5);
 		repainter = new Timer(Const.repaintTime,this);
 		setLayout(new BorderLayout());
@@ -33,7 +32,7 @@ public class SimPanel extends JPanel implements ActionListener{
 		configureGUI(dummyVector,obstVector);
 		setPreferredSize(dimPanel);
 		setVisible(true);
-	}//end constructor
+	}
 
 	public void configureGUI(List<RobotDummy> dummyVec, List<? extends Obstacle> obstVec){
 		if (obstVec != null){
@@ -52,29 +51,20 @@ public class SimPanel extends JPanel implements ActionListener{
 			else showMSG(true,"Unable to initialize Arena. DummiesVector null");
 		}
 		else showMSG(true,"Unable to initialize Arena. ObstacleVector null");
-	}//end configureGUI
-
-	/*
-	private BufferedImage getPanelImage(JPanel tempPanel){
-        BufferedImage panelImage = new BufferedImage(tempPanel.getWidth(), tempPanel.getHeight(),BufferedImage.TYPE_INT_RGB);
-        Graphics2D graphicBuffer = panelImage.createGraphics();
-        tempPanel.paint(graphicBuffer);
-        return panelImage;
 	}
-	*/
 
 	public synchronized void showMSG(boolean setClear, String msg){
 		if (setClear)logArea.setClear(true);
 		logArea.addMSG(msg);
-	}//showMSG
+	}
 
 	private synchronized void arenaRepaint(){
 		arena.repaint();
-	}//repaint
+	}
 
 	public BufferedImage getArenaImage(){
 		return Const.getPanelImage(arena);
-	}//getArenaImage
+	}
 
 	public ArenaPanel getArenaPanelRef(){return arena;}
 
@@ -83,7 +73,6 @@ public class SimPanel extends JPanel implements ActionListener{
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		arenaRepaint();
-		//showMSG(false,"repaint");
 	}
 
-}//SimPanel
+}

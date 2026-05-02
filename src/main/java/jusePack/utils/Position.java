@@ -32,7 +32,7 @@ public class Position extends Point2D.Double {
 	
 	public double getY(){ return y; }
 		
-	public double getTeta(){ return theta%(2*Math.PI); }
+	public double getTheta(){ return theta%(2*Math.PI); }
 	
 	public Point2D getLocation(){ return new Point2D.Double(x,y);}
 	

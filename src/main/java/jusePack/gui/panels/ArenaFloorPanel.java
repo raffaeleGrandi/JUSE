@@ -15,9 +15,9 @@ import jusePack.utils.Position;
 public class ArenaFloorPanel extends JPanel{
 
 	private int colorSwitchFlag = 0;
-	private Graphics pgc; //graphic panel component
+	private Graphics pgc;
 	private List<ArenaObjectABS> obstVect;
-	private int dFactor = Const.latoCasella;
+	private int cellSizePx = Const.cellSize;
 
 	public ArenaFloorPanel(List<ArenaObjectABS> obstacles){
 		obstVect = obstacles;
@@ -31,47 +31,46 @@ public class ArenaFloorPanel extends JPanel{
 		drawBanner();
 		drawArenaObst();
 		drawArenaBorder();
-
-	}//paintComponent
+	}
 
 	/*****************************************************************************************************/
 
-	private  void drawArenaFloor(){
+	private void drawArenaFloor(){
 		Color startingSquareFloorColor = Const.arenaFloorColor1;
 		pgc.setColor(startingSquareFloorColor);
-		for (int i=0; i < Const.numeroCaselle ; i++){// righe
+		for (int i=0; i < Const.gridCellCount; i++){
 			switchSquareFloorColor();
-			for (int j=0; j < Const.numeroCaselle; j++){// colonne
-				pgc.fillRect(j*Const.latoCasella,i*Const.latoCasella, Const.latoCasella, Const.latoCasella);
+			for (int j=0; j < Const.gridCellCount; j++){
+				pgc.fillRect(j*Const.cellSize, i*Const.cellSize, Const.cellSize, Const.cellSize);
 				switchSquareFloorColor();
 			}
 		}
-	}//drawArenaFloor
+	}
 
 	private void switchSquareFloorColor(){
 		if (colorSwitchFlag == 0) {	pgc.setColor(Const.arenaFloorColor2);	colorSwitchFlag = 1;}
 		else { pgc.setColor(Const.arenaFloorColor1); colorSwitchFlag = 0;	}
-	}//switchSquareFloorColor
+	}
 
 	/*****************************************************************************************************/
 
 	private void drawArenaBorder(){
-		drawRectObst(new Obstacle(ArenaObjectType.OBSTACLE_RECT,Const.arenaBorederColor, new Position(0,20,0), new Dimension(1,40))); //left
-		drawRectObst(new Obstacle(ArenaObjectType.OBSTACLE_RECT,Const.arenaBorederColor, new Position(40,20,0), new Dimension(1,40))); //right
-		drawRectObst(new Obstacle(ArenaObjectType.OBSTACLE_RECT,Const.arenaBorederColor, new Position(20,0,Math.toRadians(90)), new Dimension(1,40))); //high
-		drawRectObst(new Obstacle(ArenaObjectType.OBSTACLE_RECT,Const.arenaBorederColor, new Position(20,40,Math.toRadians(90)), new Dimension(1,40))); //right
-	}//end drawArenaBorder
+		drawRectObst(new Obstacle(ArenaObjectType.OBSTACLE_RECT,Const.arenaBorderColor, new Position(0,20,0), new Dimension(1,40))); //left
+		drawRectObst(new Obstacle(ArenaObjectType.OBSTACLE_RECT,Const.arenaBorderColor, new Position(40,20,0), new Dimension(1,40))); //right
+		drawRectObst(new Obstacle(ArenaObjectType.OBSTACLE_RECT,Const.arenaBorderColor, new Position(20,0,Math.toRadians(90)), new Dimension(1,40))); //top
+		drawRectObst(new Obstacle(ArenaObjectType.OBSTACLE_RECT,Const.arenaBorderColor, new Position(20,40,Math.toRadians(90)), new Dimension(1,40))); //bottom
+	}
 
 	private void drawBanner(){
 		pgc.setFont(new Font("SansSerif",pgc.getFont().getStyle(),12));
 		switchSquareFloorColor();
-		pgc.drawString("J",dFactor*35+7,dFactor*39-3);
+		pgc.drawString("J",cellSizePx*35+7,cellSizePx*39-3);
 		switchSquareFloorColor();
-		pgc.drawString("U",dFactor*36+3,dFactor*39-3);
+		pgc.drawString("U",cellSizePx*36+3,cellSizePx*39-3);
 		switchSquareFloorColor();
-		pgc.drawString("S",dFactor*37+3,dFactor*39-3);
+		pgc.drawString("S",cellSizePx*37+3,cellSizePx*39-3);
 		switchSquareFloorColor();
-		pgc.drawString("E",dFactor*38+3,dFactor*39-3);
+		pgc.drawString("E",cellSizePx*38+3,cellSizePx*39-3);
 	}
 
 	/*****************************************************************************************************/
@@ -82,23 +81,22 @@ public class ArenaFloorPanel extends JPanel{
 			switch(obstTemp.getID().getType()){
 				case OBSTACLE_RECT: drawRectObst(obstTemp); break;
 				case OBSTACLE_OVAL: drawOvalObst(obstTemp); break;
-			}//end switch
-		}//end for
-	}//drawArenaObst
+				default: break;
+			}
+		}
+	}
 
 	private void drawRectObst(Obstacle obst){
 		ObjectID tempID = obst.getID();
 		pgc.setColor(tempID.getColor());
-		double dFactor = Const.latoCasella;
-		double pX = dFactor*tempID.getPos().x;
-		double pY = dFactor*tempID.getPos().y;
-		double wth = dFactor*tempID.getDim().width;
-		double hgt = dFactor*tempID.getDim().height;
-		double ang = tempID.getAngle(); //rad
+		double cellPx = Const.cellSize;
+		double pX = cellPx*tempID.getPos().x;
+		double pY = cellPx*tempID.getPos().y;
+		double wth = cellPx*tempID.getDim().width;
+		double hgt = cellPx*tempID.getDim().height;
+		double ang = tempID.getAngle();
 		fillRotatedRect(pX,pY,wth,hgt,ang);
-	}// draw drawWallObj
-
-
+	}
 
 	private void fillRotatedRect(double cX, double cY, double width, double depth, double rotAng) {
 
@@ -117,27 +115,29 @@ public class ArenaFloorPanel extends JPanel{
 		int x3 = (int)(cX + r*Math.cos(Math.PI + aStatR + rotAngR));
 		int y3 = (int)(cY - r*Math.sin(Math.PI + aStatR + rotAngR));
 
-		int[] arrayAscisseT1 = new int[3]; int[] arrayOrdinateT1 = new int[3];
-		int[] arrayAscisseT2 = new int[3]; int[] arrayOrdinateT2 = new int[3];
+		int[] xPointsT1 = new int[3]; int[] yPointsT1 = new int[3];
+		int[] xPointsT2 = new int[3]; int[] yPointsT2 = new int[3];
 
-		arrayAscisseT1[0] = x0;	arrayAscisseT1[1] = x3;	arrayAscisseT1[2] = x2;
-		arrayOrdinateT1[0] = y0; arrayOrdinateT1[1] = y3; arrayOrdinateT1[2] = y2;
+		xPointsT1[0] = x0;	xPointsT1[1] = x3;	xPointsT1[2] = x2;
+		yPointsT1[0] = y0; yPointsT1[1] = y3; yPointsT1[2] = y2;
 
-		arrayAscisseT2[0] = x0;	arrayAscisseT2[1] = x1;	arrayAscisseT2[2] = x2;
-		arrayOrdinateT2[0] = y0; arrayOrdinateT2[1] = y1; arrayOrdinateT2[2] = y2;
+		xPointsT2[0] = x0;	xPointsT2[1] = x1;	xPointsT2[2] = x2;
+		yPointsT2[0] = y0; yPointsT2[1] = y1; yPointsT2[2] = y2;
 
-		pgc.fillPolygon(arrayAscisseT1,arrayOrdinateT1,3);
-		pgc.fillPolygon(arrayAscisseT2,arrayOrdinateT2,3);
-
-	}//end fillRotatedRect
+		pgc.fillPolygon(xPointsT1,yPointsT1,3);
+		pgc.fillPolygon(xPointsT2,yPointsT2,3);
+	}
 
 	public void drawOvalObst(Obstacle obst){
 		ObjectID tempID = obst.getID();
 		pgc.setColor(tempID.getColor());
-		double dFactor = Const.latoCasella;
-		pgc.fillOval((int)(dFactor*tempID.getPos().x),(int)(dFactor*tempID.getPos().y),(int)dFactor*tempID.getDim().width,(int)dFactor*tempID.getDim().height);
+		double cellPx = Const.cellSize;
+		// La posizione è il CENTRO dell'ellissi (convenzione allineata ai rettangoli)
+		double cx = cellPx * tempID.getPos().x;
+		double cy = cellPx * tempID.getPos().y;
+		double w  = cellPx * tempID.getDim().width;
+		double h  = cellPx * tempID.getDim().height;
+		pgc.fillOval((int)(cx - w / 2), (int)(cy - h / 2), (int)w, (int)h);
 	}
 
-}//ArenaFloorImageBuilder
-
-
+}

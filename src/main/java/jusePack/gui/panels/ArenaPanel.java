@@ -14,63 +14,61 @@ import jusePack.utils.Const;
 @SuppressWarnings("serial")
 public class ArenaPanel extends JPanel {
 
-	private Graphics agc; //arena graphic component
+	private Graphics agc;
 	private BufferedImage floorImage;
-	public List<ArenaObjectABS> dummiesvec;
-	private double dFactor = Const.latoCasella;
+	private List<ArenaObjectABS> unitObjects;
+	private double cellSizePx = Const.cellSize;
 
 	public ArenaPanel(BufferedImage floorImg, List<ArenaObjectABS> aovDummies){
 		floorImage = floorImg;
-		dummiesvec = aovDummies;
+		unitObjects = aovDummies;
 		setDoubleBuffered(true);
 		setSize(Const.arenaDimension);
-	}//end constructor
+	}
 
 	public void paint(Graphics g){
 		super.paintComponent(g);
 		agc = g;
 		drawArenaFloorImage();
 		drawArenaObjects();
-	}//end paint
+	}
 
 	/******************************************************************************************************/
 
 	private void drawArenaFloorImage(){agc.drawImage(floorImage,0,0,null);}
 
+	private void drawArenaObjects(){
 
-	public void drawArenaObjects(){
-
-		for (ArenaObjectABS arenaObj : dummiesvec){
+		for (ArenaObjectABS arenaObj : unitObjects){
 			UnitObject uoTemp = (UnitObject)arenaObj;
-			drawRUnitSR(uoTemp.getID().getPos(),uoTemp.sensorRange);
+			drawUnitSensorRange(uoTemp.getID().getPos(), uoTemp.getSensorRange());
 		}
 
-		for (ArenaObjectABS arenaObj : dummiesvec){
+		for (ArenaObjectABS arenaObj : unitObjects){
 			UnitObject uoTemp = (UnitObject)arenaObj;
-			drawRUnit(uoTemp.getID());
+			drawUnit(uoTemp.getID());
 		}
-	}//drawArenaObjects
+	}
 
-	private void drawRUnitSR(Point2D unitLocation,double sensRangeRadius){//in caselle
-		int circleCenterX = (int)(dFactor * unitLocation.getX()); // ??? il casting esplicito mi dava una ClassCastException
-		int circleCenterY = (int)(dFactor * unitLocation.getY());
-		int circleRadius = Const.unitRadius+(int)(dFactor*sensRangeRadius); //
+	private void drawUnitSensorRange(Point2D unitLocation, double sensRangeRadius){
+		int circleCenterX = (int)(cellSizePx * unitLocation.getX());
+		int circleCenterY = (int)(cellSizePx * unitLocation.getY());
+		int circleRadius = Const.unitRadius+(int)(cellSizePx*sensRangeRadius);
 		agc.setColor(Const.sensorRangeColor);
 		agc.drawOval(circleCenterX - circleRadius, circleCenterY - circleRadius, circleRadius * 2, circleRadius * 2);
 	}
 
-	private void drawRUnit(ObjectID unitID){
-		Point2D unitLocation = unitID.getPos(); //conversione implicita essendo il valore di ritorno una Position estensione di Point2D
-		int circleCenterX = (int)(dFactor * unitLocation.getX()); // ??? il casting esplicito mi dava una ClassCastException
-		int circleCenterY = (int)(dFactor * unitLocation.getY());
-		int circleRadius = Const.unitRadius; // disegna l'estensione dell'unità
+	private void drawUnit(ObjectID unitID){
+		Point2D unitLocation = unitID.getPos();
+		int circleCenterX = (int)(cellSizePx * unitLocation.getX());
+		int circleCenterY = (int)(cellSizePx * unitLocation.getY());
+		int circleRadius = Const.unitRadius;
 		Color unitColor = unitID.getColor();
 		agc.setColor(unitColor);
 		agc.fillOval(circleCenterX - circleRadius, circleCenterY - circleRadius, circleRadius * 2, circleRadius * 2);
 		agc.setColor(Const.markerColor);
-		circleRadius = circleRadius - 3; // raggio cerchio bianco
+		circleRadius = circleRadius - 3;
 		agc.drawOval(circleCenterX - circleRadius, circleCenterY - circleRadius, circleRadius * 2, circleRadius * 2);
-		/** disegna il marker **/
 		int markerCenterX = circleCenterX + (int)(Const.markerCircleDeltaLocation * Math.cos(unitID.getAngle()));
 		int markerCenterY = circleCenterY + (int)(Const.markerCircleDeltaLocation * Math.sin(unitID.getAngle()));
 		int markerRadius = Const.markerCircleRadius;
@@ -78,6 +76,6 @@ public class ArenaPanel extends JPanel {
 		agc.setColor(Const.markerColor);
 		agc.setFont(new Font("SansSerif",agc.getFont().getStyle(),10));
 		agc.drawString(""+unitID.getIDnum(),circleCenterX-3,circleCenterY+3);
-	}//end drawRUnit
+	}
 
-}// end class ArenaPanel
+}

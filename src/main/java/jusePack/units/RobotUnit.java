@@ -2,7 +2,6 @@ package jusePack.units;
 
 import java.awt.Color;
 import jusePack.ArenaObjects.ObjectID;
-import jusePack.structures.UnitsManager;
 import jusePack.ArenaObjects.ArenaObjectType;
 import jusePack.utils.Const;
 import jusePack.utils.Position;
@@ -11,59 +10,55 @@ public abstract class RobotUnit implements Runnable{
 
 	private Thread thread;
 
-	private ObjectID unitID;	
-	private UnitObject unitObj;	
-	protected volatile boolean activeStatus = true;	
-	double vK = 0;
-	double wK = 0;	
-	public boolean collisionStatus = false;
+	private ObjectID unitID;
+	private UnitObject unitObj;
+	protected volatile boolean activeStatus = true;
+	private double vK = 0;
+	private double wK = 0;
+	private boolean collisionStatus = false;
 
-	public RobotUnit(int unitIDnum,Position unitPos,double sensRange, Color unitColor){
-		unitObj = new UnitObject(new ObjectID(ArenaObjectType.UNIT, unitColor, unitPos, Const.unitDim),sensRange);
+	public RobotUnit(int unitIDnum, Position unitPos, double sensRange, Color unitColor){
+		unitObj = new UnitObject(new ObjectID(ArenaObjectType.UNIT, unitColor, unitPos, Const.unitDim), sensRange);
 		unitID = unitObj.getID();
-		unitID.setIDnum(unitIDnum);	
-	}//end RobotUnit
+		unitID.setIDnum(unitIDnum);
+	}
 
 	/***********************************************************************************************************/
-
-	public void setCollisionsManager(UnitsManager collManagRef){ unitObj.collMng = collManagRef; }
 
 	public void setActive(boolean status){
 		System.out.println("RU"+getIDnum()+">setActive to "+status);
 		activeStatus = status;
-	}//setActive
+	}
+
+	public boolean hasCollision(){ return collisionStatus; }
 
 	/***********************************************************************************************************/
 
-	//public ObjectID getUID(){ return unitID;}
-
-	/*	Used by SimPanel*/
 	public UnitObject getUnitObject(){ return unitObj; }
 
-	/* Used by RU */
 	public int getIDnum(){ return unitID.getIDnum(); }
 
 	public Position getPosition(){ return unitObj.getExactPos(); }
 
 	/***********************************************************************************************************/
 
-	public int[] getAllSens(){ return unitObj.irSensors.getSensors();}
+	public int[] getAllSens(){ return unitObj.getIrSensors().getSensors();}
 
-	public int getOneSen(int index){ return unitObj.irSensors.getSensorValue(index);}
+	public int getOneSen(int index){ return unitObj.getIrSensors().getSensorValue(index);}
 
 	/**********************************************************************************************************/
 
-	public void setMotorSpeed(double wlk,double wrk){
+	public void setMotorSpeed(double wlk, double wrk){
 		double lftSpeed = wlk/100;
 		double rgtSpeed = wrk/100;
-		vK= eq_Vk(lftSpeed,rgtSpeed);	//robot linear speed
-		wK = eq_Wk(lftSpeed,rgtSpeed); //robot angular speed		
-	}//setWheelSpeed
+		vK = eq_Vk(lftSpeed, rgtSpeed);
+		wK = eq_Wk(lftSpeed, rgtSpeed);
+	}
 
 	public void setRobotSpeed(double linSpeed, double angSpeed){
 		vK = linSpeed;
-		wK = angSpeed; 
-	}//setRobotSpeed
+		wK = angSpeed;
+	}
 
 	public boolean isActive(){ return activeStatus; }
 
@@ -76,17 +71,13 @@ public abstract class RobotUnit implements Runnable{
 	public void run(){
 		activeStatus = true;
 		while(activeStatus)	executeLoop();
-	}//run
+	}
 
-	// executeLoop viene implementato dalla classe RobotDummy ed esegue il programma di controllo del robot
-
-	public abstract void executeLoop(); 
+	public abstract void executeLoop();
 
 	/**********************************	Moving Methods **********************************************************/
 
-	/*Old Style*/
-
-	public void rotateBy(int angle, int tms){		
+	public void rotateBy(int angle, int tms){
 		double totAngDisplacement = Math.toRadians(Math.abs(angle));
 		double currAngDisplacement = 0;
 		double stepAngle = Math.toRadians(Const.angleStep);
@@ -95,72 +86,66 @@ public abstract class RobotUnit implements Runnable{
 			double currAngle = unitObj.getExactAngle();
 			unitObj.getObjID().setAngle(currAngle+dir*stepAngle);
 			currAngDisplacement+=stepAngle;
-			try {Thread.sleep(tms);} 
+			try {Thread.sleep(tms);}
 			catch (InterruptedException e) {e.printStackTrace();}
 		}
-		collisionStatus = false; //ipotizzo che il collisionStatus sia false (ricorda che il collision status è leggibile dall'esterno)
-	}//rotateBy
+		collisionStatus = false;
+	}
 
-	public void forward(double speed){ this.setMotorSpeed(Math.abs(speed), Math.abs(speed)); }//forward
-	
-	public void backward(double speed){ this.setMotorSpeed(-Math.abs(speed), -Math.abs(speed)); }//backward
+	public void forward(double speed){ this.setMotorSpeed(Math.abs(speed), Math.abs(speed)); }
+
+	public void backward(double speed){ this.setMotorSpeed(-Math.abs(speed), -Math.abs(speed)); }
 
 	/***********************************************************************************************************/
 
-	/* Metodo utilizzato da UnitManager */
-	public void evaluateMovement(double timeSample){		
+	public void evaluateMovement(double timeSample){
 		collisionStatus = detectCollisions();
-		if(Const.cmnt)System.out.println("Collisions detected for unit# "+this.getIDnum()+" = "+collisionStatus);					
-		if (!collisionStatus) this.moveUnit(timeSample);
-		else{
-			stopUnit();
-			//Position currPos = getPosition();
-			//Position oldPos = unitObj.getOldPos();
-			//if((currPos.x == oldPos.x)&&(currPos.y == oldPos.y)){this.moveUnit(timeSample);}
-			//else{ unitObj.resetToOldPosition(); }
-			//unitObj.resetToOldPosition();
-		}		
-	}//evaluateMovement
-
-	/***********************************************************************************************************/
-	
-	/*
-	 * In caso di collisione il sistema deve permettere la sola rotazione del robot.
-	 * Viene chiamato da UnitManager
-	 * */
-
-	public boolean evaluateRotation(){	//se la velocità di avanzamento == 0 e quella di rotazione !=0 torna true 
-		System.out.println("Eseguo evalRot");
-		if ((vK==0) && (wK!=0)) return true;
-		else return false;
+		if(Const.debugEnabled)System.out.println("Collisions detected for unit# "+this.getIDnum()+" = "+collisionStatus);
+		if (!collisionStatus) {
+			this.moveUnit(timeSample);
+		} else {
+			// Se il robot sta ruotando su se stesso (vK=0, wK!=0) lo lasciamo girare
+			// anche in presenza di collisione: è fisicamente il comportamento corretto
+			// per uscire dall'ostacolo senza traslazione.
+			if (evaluateRotation()) {
+				this.moveUnit(timeSample);
+			} else {
+				stopUnit();
+			}
+		}
 	}
 
 	/***********************************************************************************************************/
 
-	public void stopUnit(){ // viene utilizzato anche da UnitManager per fermare l'unità in caso di collisioni
-		System.out.println("Viene eseguito stopUnit");
-		setMotorSpeed(0,0);			
-	}//stopUnit
-
-	public void moveUnit(double timeSample){ //Viene chiamato da UnitsManager. Crea così l'autonomia del robot
-		Position currPos = unitObj.getExactPos();
-		//System.out.println(currPos.toString());		 
-		Position newPos = null;
-		if(Math.abs(wK) < 0.001) newPos = metodo_RungeKutta(currPos,vK,0,timeSample);
-		else newPos = metodo_Esatto(currPos,vK,wK,timeSample);
-		unitObj.setPos(newPos);		
-	}//moveUnit
+	public boolean evaluateRotation(){
+		return (vK == 0) && (wK != 0);
+	}
 
 	/***********************************************************************************************************/
 
-	public int getDirection(){		
-		int dir = (int) Math.signum(vK); //per decidere in quale direzione sta andando vede il segno della velocità del robot
+	public void stopUnit(){
+		System.out.println("Executing stopUnit");
+		setMotorSpeed(0,0);
+	}
+
+	public void moveUnit(double timeSample){
+		Position currPos = unitObj.getExactPos();
+		Position newPos = null;
+		if(Math.abs(wK) < 0.001) newPos = computeRungeKutta(currPos,vK,0,timeSample);
+		else newPos = computeExact(currPos,vK,wK,timeSample);
+		unitObj.setPos(newPos);
+	}
+
+	/***********************************************************************************************************/
+
+	public int getDirection(){
+		int dir = (int) Math.signum(vK);
 		return dir;
 	}
 
-	public boolean detectCollisions(){//viene utilizzato da UnitManager
+	public boolean detectCollisions(){
 		int dir = this.getDirection();
-		if(Const.cmnt)System.out.println("Direction of unit #"+getIDnum()+" = "+dir);
+		if(Const.debugEnabled)System.out.println("Direction of unit #"+getIDnum()+" = "+dir);
 		return unitObj.detectCollisions(dir);
 	}
 
@@ -168,19 +153,18 @@ public abstract class RobotUnit implements Runnable{
 
 	private double eq_Vk(double wlk, double wrk){
 		double res = unitObj.wheelRadius*(wlk+wrk)/2;
-		return res; 
+		return res;
 	}
 
-	private double eq_Wk(double wlk, double wrk){		
-		double res = (unitObj.wheelRadius*(wlk-wrk)/unitObj.wheelsDistance); 
+	private double eq_Wk(double wlk, double wrk){
+		double res = (unitObj.wheelRadius*(wlk-wrk)/unitObj.wheelsDistance);
 		if (res == 0) res=0.00000000001;
 		return res;
 	}
 
 	/************************************************************************************************/
 
-	private Position metodo_RungeKutta(Position currPos, double vK, double wK, double timeSample){
-		//System.out.println("Utilizzo metodo_RK");
+	private Position computeRungeKutta(Position currPos, double vK, double wK, double timeSample){
 		double nextTheta = (currPos.theta + wK*timeSample)%(2*Math.PI);
 		double nextPosX = currPos.x + vK*timeSample*Math.cos(currPos.theta + wK*timeSample/2);
 		double nextPosY = currPos.y + vK*timeSample*Math.sin(currPos.theta + wK*timeSample/2);
@@ -190,15 +174,12 @@ public abstract class RobotUnit implements Runnable{
 
 	/************************************************************************************************/
 
-	private Position metodo_Esatto(Position currPos, double vK, double wK, double timeSample){
-		//System.out.println("Utilizzo metodo_Esatto");
+	private Position computeExact(Position currPos, double vK, double wK, double timeSample){
 		double nextTheta = (currPos.theta + wK*timeSample)%(2*Math.PI);
 		double nextPosX = currPos.x + (vK/wK)*(Math.sin(nextTheta) - Math.sin(currPos.theta));
-		double nextPosY = currPos.y - (vK/wK)*(Math.cos(nextTheta) - Math.cos(currPos.theta));		
+		double nextPosY = currPos.y - (vK/wK)*(Math.cos(nextTheta) - Math.cos(currPos.theta));
 		Position newPos = new Position(nextPosX,nextPosY,nextTheta);
 		return newPos;
-	}//metodoEsatto
+	}
 
-	/*********************************************************************************************************/
-
-}//end RobotUnit
+}

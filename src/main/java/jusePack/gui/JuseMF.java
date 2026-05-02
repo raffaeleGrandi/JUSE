@@ -11,28 +11,26 @@ import jusePack.utils.LogArea;
 
 @SuppressWarnings("serial")
 public class JuseMF extends JFrame{
-	
+
 	LogArea logArea;
 	int deltaW = 20;
-	int deltaH = 40;	
+	int deltaH = 40;
 	public SimPanel simPanel;
-	
-	public JuseMF(String frameTitle, Point frameLoc, String logInitStr, ScenarioManager scenario){
-		super(frameTitle);		
-		Container c = getContentPane();			
-		c.setLayout(new FlowLayout());
-		simPanel = new SimPanel(Const.guiFrameDim,logInitStr,scenario.getRobotsVector(),scenario.getObstaclesVector());
-		c.add(simPanel);		
-		setLocation(frameLoc);
-        setSize(simPanel.getPreferredSize().width+deltaW,simPanel.getPreferredSize().height+deltaH); 
-        setVisible(true);
-        setResizable(true); 
-        
-	}//end constructor
-	
-	public void showMSG(boolean setClear, String msg){ simPanel.showMSG(setClear, msg); }
-	
-	public void startRefresh(){simPanel.startRefresh();}
-	
 
-}//end JUnibot
+	public JuseMF(String frameTitle, Point frameLoc, String logInitStr, ScenarioManager scenario){
+		super(frameTitle);
+		Container c = getContentPane();
+		c.setLayout(new FlowLayout());
+		simPanel = new SimPanel(Const.guiFrameDim,logInitStr,scenario.getRobots(),scenario.getObstacles());
+		c.add(simPanel);
+		setLocation(frameLoc);
+        setSize(simPanel.getPreferredSize().width+deltaW,simPanel.getPreferredSize().height+deltaH);
+        setVisible(true);
+        setResizable(true);
+	}
+
+	public void showMSG(boolean setClear, String msg){ simPanel.showMSG(setClear, msg); }
+
+	public void startRefresh(){simPanel.startRefresh();}
+
+}
