@@ -144,16 +144,16 @@ src/
 Sensors are numbered 0–17, evenly spaced at 20° intervals starting from the robot's heading direction (sensor 0 = front), going clockwise:
 
 ```
-              [0]            ← front (heading, 0°)
-         [17]    [1]         ← ±20°
-       [16]          [2]     ← ±40°
-      [15]             [3]   ← ±60°
-     [14]      (R)     [4]   ← ±80°
-      [13]             [5]   ← ±100°
-       [12]          [6]     ← ±120°
-         [11]    [7]         ← ±140°
-           [10]  [8]         ← ±160°
-              [9]            ← rear (180°)
+              [0]               <- front (0°)
+         [17]      [1]          <- ±20°
+     [16]              [2]      <- ±40°
+  [15]                    [3]   <- ±60°
+[14]          (R)          [4]  <- ±80°
+[13]                       [5]  <- ±100°
+  [12]                    [6]   <- ±120°
+     [11]              [7]      <- ±140°
+         [10]      [8]          <- ±160°
+              [9]               <- rear (180°)
 ```
 
 IR sensors return values from 0 (obstacle at contact distance) to 255 (no obstacle within range). Bump sensors activate when an obstacle is within physical contact range.
