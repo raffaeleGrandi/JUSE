@@ -141,17 +141,19 @@ src/
 
 ## Sensor Layout
 
-Sensors are numbered 0–17, evenly spaced at 20° intervals starting from the robot's heading direction (sensor 0 = front):
+Sensors are numbered 0–17, evenly spaced at 20° intervals starting from the robot's heading direction (sensor 0 = front), going clockwise:
 
 ```
-        [17][0][1]
-      [16]       [2]
-    [15]           [3]
-    [14]    (R)    [4]
-    [13]           [5]
-      [12]       [6]
-        [11][10][7]
-            [9][8]
+              [0]            ← front (heading, 0°)
+         [17]    [1]         ← ±20°
+       [16]          [2]     ← ±40°
+      [15]             [3]   ← ±60°
+     [14]      (R)     [4]   ← ±80°
+      [13]             [5]   ← ±100°
+       [12]          [6]     ← ±120°
+         [11]    [7]         ← ±140°
+           [10]  [8]         ← ±160°
+              [9]            ← rear (180°)
 ```
 
 IR sensors return values from 0 (obstacle at contact distance) to 255 (no obstacle within range). Bump sensors activate when an obstacle is within physical contact range.
@@ -160,15 +162,19 @@ IR sensors return values from 0 (obstacle at contact distance) to 255 (no obstac
 
 ## Background
 
-JUSE was born in 2008 as part of Raffaele Grandi's master thesis at the **University of Bologna**. The goal was to create a simulation environment for **UniBot**, a custom-built differential-drive robot developed in the robotics lab. The key design decision — modeling each simulated robot as an independent agent in the Multi-Agent Systems sense — made JUSE flexible enough to be adopted in university courses on Robotics and Artificial Intelligence, and as a platform for several student theses.
+JUSE was born in April 2008 as a simulation tool developed alongside Raffaele Grandi's M.Sc. thesis in Computer Science & Software Engineering at the **University of Bologna**. The thesis focused on coordinating mobile robot swarms using Particle Swarm Optimization — JUSE was the environment in which those algorithms were designed and tested before running on real hardware.
 
-Development continued through Raffaele's PhD, and JUSE was used to test navigation and coordination algorithms before deploying them on real hardware.
+The key design decision — modeling each simulated robot as an independent agent in the Multi-Agent Systems sense, with separate layers of computation from logical to physical — made JUSE flexible enough to be adopted in university courses on Robotics and Artificial Intelligence, and as a platform for several student theses.
+
+Development continued during Raffaele's PhD (2010–2013) in Automation & Operational Research, where JUSE supported research on multi-robot coordination, swarm intelligence, and consensus-based control. During this period, **UniBot** — a physical differential-drive robot co-developed in the lab — became JUSE's real-world counterpart, and the two platforms were used together for teaching and research.
 
 This public release brings the codebase up to modern Java (21), replaces the original pixel-based collision detection with a clean geometric ray casting model, and opens the project to external contributors.
 
-If you use JUSE in academic work, you may also reference the original paper describing the UniBot platform:
+If you use JUSE in academic work, you may reference the following:
 
-> R. Grandi, R. Falconi, C. Melchiorri — *"UniBot Remote Laboratory: A Scalable Web-Based Set-up for Education and Experimental Activities in Robotics"* — IFAC Proceedings, 2011. DOI: [10.3182/20110828-6-IT-1002.03103](https://doi.org/10.3182/20110828-6-IT-1002.03103)
+> R. Grandi — *"Coordination of a mobile robots swarm by using Particle Swarm Optimization algorithms"* — M.Sc. Thesis, University of Bologna, School of Engineering and Architecture, 2009.
+
+> R. Grandi, R. Falconi, C. Melchiorri — *"UniBot Remote Laboratory: A Scalable Web-Based Set-up for Education and Experimental Activities in Robotics"* — IFAC World Congress 2011, Milan, Italy. DOI: [10.3182/20110828-6-IT-1002.03103](https://doi.org/10.3182/20110828-6-IT-1002.03103)
 
 ---
 
