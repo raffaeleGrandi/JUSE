@@ -1,0 +1,25 @@
+# Claude Code
+.claude/
+
+# Gradle
+build/
+.gradle/
+gradle/wrapper/gradle-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+.project
+.classpath
+.settings/
+
+# Java
+*.class
+*.jar
+*.war
+
+# OS
+.DS_Store
+Thumbs.db
