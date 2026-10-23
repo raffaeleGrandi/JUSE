@@ -1,7 +1,7 @@
 # JUSE
 
 > **This is the historical version of JUSE (2008–2011), kept as it was.**
-> Development continues in **[Pianura](https://github.com/raffaeleGrandi/pianura)**, its modern evolution.
+> Development continues in **[Pianura](https://github.com/raffaeleGrandi/Pianura)**, its modern evolution.
 
 author: Raffaele Grandi
 period: April 2008 - July 2011
