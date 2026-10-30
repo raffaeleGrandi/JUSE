@@ -43,6 +43,8 @@ The controller has no way out of a head-on contact: two robots facing each other
 pinned against a wall, can stay jammed. That is visible in scenario 05, and it is how the
 original behaves.
 
+Video of this controller running in JUSE: [YouTube short](https://www.youtube.com/shorts/HHJ_h5eizjM).
+
 ## braitenberg: `BraitenbergAvoider`
 
 ***Added 2026-10-30, not part of the original JUSE.*** A Braitenberg "fear" vehicle

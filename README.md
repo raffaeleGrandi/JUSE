@@ -27,6 +27,9 @@ were added in 2026; see below.
 driven by Particle Swarm Optimization, reaches a target while avoiding obstacles they do not
 know in advance. The PSO code is not in this repository (yet).
 
+[Short: the original IR obstacle-avoidance controller](https://www.youtube.com/shorts/HHJ_h5eizjM)
+(YouTube): `TestDummy04`, the reactive controller of scenario 04, running in JUSE.
+
 ## Repository layout
 
 | Folder | Contents |
