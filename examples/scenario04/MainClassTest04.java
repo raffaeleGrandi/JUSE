@@ -1,4 +1,4 @@
-package testRobots4;
+package examples.scenario04;
 
 import java.awt.Color;
 import java.awt.Point;

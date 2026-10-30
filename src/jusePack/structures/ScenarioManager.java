@@ -28,17 +28,6 @@ public class ScenarioManager {
 	
 	public void removeRobot(int index){ dummyVector.remove(index);}
 	
-	/*
-	public void removeObstacle(int index){
-		obstVector.remove(index);
-		---> Arena Refresh <----
-	}
-	
-	public void moveObstacle(int index, Position newPos){
-		obstVector.elementAt(index).setPos(newPos);
-	}
-	*/
-	
 	public void enableRobots(){
 		if (unitsMNGset){
 			for(int i = 0; i < dummyVector.size(); i++){

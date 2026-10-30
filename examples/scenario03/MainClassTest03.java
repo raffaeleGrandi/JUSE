@@ -1,4 +1,4 @@
-package testRobots3;
+package examples.scenario03;
 
 import java.awt.Point;
 import jusePack.*;

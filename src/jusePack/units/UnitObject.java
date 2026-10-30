@@ -92,6 +92,5 @@ public class UnitObject extends ArenaObjectABS {
 		return collisionDetect;
 	}//detectCollisions
 	
-	//public PointsList getFCWlist(){return collHand.getFCWlist();}	
 	
 } // end class

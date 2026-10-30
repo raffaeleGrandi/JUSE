@@ -2,11 +2,8 @@ package jusePack.units.collisions;
 
 	import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-//	import java.awt.image.BufferedImage;
 	import java.awt.Color;
-//	import java.awt.Graphics2D;
 	import java.util.Vector;
-//	import javax.swing.JPanel;
 import jusePack.ArenaObjects.ObjectID;
 import jusePack.gui.panels.*;
 import jusePack.units.UnitObject;
@@ -39,14 +36,10 @@ public class CollisionDetector {
 		double unitCenterX = dFactor*unitLoc.getX(); 	//convertito in pixel
 		double unitCenterY = dFactor*unitLoc.getY();	//convertito in pixel
 		double unitAng = unitToTestID.getAngle();
-		//double alpha0 = Math.toRadians(unitAng) + Const.angleLag2D3D; // definisce il davanti dell'unita
 		double alpha0 = unitAng;
 	
-		//collPanelLink.clearCollisionsVector();
-		//collPanelLink.addCollisionPoint(new Point2D.Double(unitCenterX,unitCenterY));
 		
 		for(int i = 0; i < (Const.numSensori); i++){
-			//System.out.println("CD>Sensore "+i);
 			double delta = testUnit.bumpSensors.getSensorAngle(i); // già in radianti
 			double alpha = alpha0 + delta;
 			if(Const.cmnt)System.out.println("Angoli: alpha0="+alpha0+"; delta="+delta+";alpha="+alpha);
@@ -56,14 +49,11 @@ public class CollisionDetector {
 			while ((!trovata)&&(sensDist < sensorsCheckingRange)){
 				int checkpointX = (int)(unitCenterX + (Const.unitRadius+k+sensDist)*Math.cos(alpha));
 				int checkpointY = (int)(unitCenterY + (Const.unitRadius+k+sensDist)*Math.sin(alpha));	
-			//	collPanelLink.addCollisionPoint(new Point2D.Double(checkpointX,checkpointY)); //verifica sul collision Panel il checking point
-			//	System.out.println("Arena CheckPoint: ["+checkpointX+","+checkpointY+"]");
 				Color checkedColor = new Color(arenaImage.getRGB(checkpointX, checkpointY));
 				if (sensDist < Const.sensorsCheckingRange0){//lavoro sui bumper
 					if (!excludedColor.contains(checkedColor)) {
 						testUnit.bumpSensors.setSensorValue(i, sensDist);	
 						testUnit.irSensors.setSensorValue(i, sensDist);
-					//	collPanelLink.addCollisionPoint(new Point2D.Double(checkpointX,checkpointY));
 						System.out.println("CD>Active BumpSensor #"+i+", sensorAngle: "+Math.toDegrees(delta)+", sensDist: "+sensDist);
 						trovata = true;						
 					}	
@@ -73,7 +63,6 @@ public class CollisionDetector {
 				else {//lavoro sui sensori infrosso
 					if (!excludedColor.contains(checkedColor)) {
 						testUnit.irSensors.setSensorValue(i, sensDist);					
-					//	collPanelLink.addCollisionPoint(new Point2D.Double(checkpointX,checkpointY));
 						if(Const.cmnt)System.out.println("CD>Active IRSensor #"+i+", sensorAngle: "+Math.toDegrees(delta)+", sensDist: "+sensDist);
 						trovata = true;
 					}	
@@ -87,15 +76,6 @@ public class CollisionDetector {
 		}//for
 		if(Const.cmnt)System.out.println("\nCD>end detection for unit #"+unitToTestID.getIDnum());	
 	}//detectCollisions	
-	
-	/*
-	private BufferedImage getPanelImage(JPanel tempPanel){		
-        BufferedImage panelImage = new BufferedImage(tempPanel.getWidth(), tempPanel.getHeight(),BufferedImage.TYPE_INT_RGB);
-        Graphics2D graphicBuffer = panelImage.createGraphics();
-        tempPanel.paint(graphicBuffer);
-        return panelImage;		
-	}
-	*/	
 	
 	/****************************************************************************************************************************/
 	

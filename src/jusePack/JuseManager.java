@@ -35,7 +35,6 @@ public class JuseManager {
 	
 	public void setNewScenario(ScenarioManager newScenario){
 		mainFrame.simPanel.configureGUI(newScenario.getRobotsVector(),newScenario.getObstaclesVector());
-	//	mainFrame.simPanel.arenaRepaint();
 	}
 	
 	public void addExcludedColor(Color excludeColor){collDetect.excludedColor.add(excludeColor);}

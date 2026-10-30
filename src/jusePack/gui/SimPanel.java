@@ -53,15 +53,6 @@ public class SimPanel extends JPanel implements ActionListener{
 		else showMSG(true,"Unable to initialize Arena. ObstacleVector null");
 	}//end configureGUI
 		
-	/*
-	private BufferedImage getPanelImage(JPanel tempPanel){		
-        BufferedImage panelImage = new BufferedImage(tempPanel.getWidth(), tempPanel.getHeight(),BufferedImage.TYPE_INT_RGB);
-        Graphics2D graphicBuffer = panelImage.createGraphics();
-        tempPanel.paint(graphicBuffer);
-        return panelImage;		
-	}
-	*/	
-	
 	public synchronized void showMSG(boolean setClear, String msg){
 		if (setClear)logArea.setClear(true);
 		logArea.addMSG(msg); 
@@ -82,7 +73,6 @@ public class SimPanel extends JPanel implements ActionListener{
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		arenaRepaint();		
-		//showMSG(false,"repaint");
 	}
 	
 }//SimPanel
