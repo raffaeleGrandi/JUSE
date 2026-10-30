@@ -1,4 +1,4 @@
-package testRobots4;
+package algorithms.iravoidance;
 
 import jusePack.units.RobotDummy;
 import jusePack.units.UnitObject;

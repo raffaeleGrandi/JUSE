@@ -1,5 +1,6 @@
-package testRobots4;
+package examples.scenario04;
 
+import algorithms.iravoidance.TestDummy04;
 import java.awt.Color;
 import java.awt.Dimension;
 

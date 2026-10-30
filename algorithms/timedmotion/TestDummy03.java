@@ -1,4 +1,4 @@
-package testRobots3;
+package algorithms.timedmotion;
 
 import jusePack.units.RobotDummy;
 import jusePack.units.UnitObject;

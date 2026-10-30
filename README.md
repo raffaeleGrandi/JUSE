@@ -11,21 +11,21 @@ Intelligence and for many other thesis.
 
 ## Running it today
 
-The code is unchanged since 2011 and still compiles and runs on a current JDK
+The simulator behaves as it did in 2011 and still compiles and runs on a current JDK
 (tested with 21 and 25). From the repository root:
 
 ```
-javac -d bin -sourcepath src src/testRobots4/MainClassTest04.java
-java -cp bin testRobots4.MainClassTest04
+javac -d bin -sourcepath src:. examples/scenario04/MainClassTest04.java
+java -cp bin examples.scenario04.MainClassTest04
 ```
 
-The second example works the same way with `testRobots3/MainClassTest03`.
+The second example works the same way with `examples/scenario03/MainClassTest03`. (The examples used to live in `src/testRobots3` and `src/testRobots4`; the robot controllers they use are now in `algorithms/`.) On Windows, use `;` instead of `:` in the source path.
 
 Notes:
 
 - the compiler warns that `new Double(...)` in `ArenaPanel.java` is deprecated; the
   warning is harmless;
-- in `testRobots3` the robots can reach the edge of the arena: the original pixel-based
+- in example 03 the robots can reach the edge of the arena: the original pixel-based
   collision detection then reads outside its image and the simulation thread stops with
   an `ArrayIndexOutOfBoundsException`. This is how JUSE behaved in 2011 and is left as is;
   Pianura replaced that collision model with geometric ray casting.

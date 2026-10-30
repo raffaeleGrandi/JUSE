@@ -1,5 +1,6 @@
-package testRobots3;
+package examples.scenario03;
 
+import algorithms.timedmotion.TestDummy03;
 import jusePack.structures.ScenarioManager;
 import jusePack.utils.Position;
 
