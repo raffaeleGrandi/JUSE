@@ -32,7 +32,6 @@ public abstract class RobotUnit extends Thread{
 
 	/***********************************************************************************************************/
 
-	//public ObjectID getUID(){ return unitID;}
 
 	/*	Used by SimPanel*/
 	public UnitObject getUnitObject(){ return unitObj; }
@@ -107,11 +106,6 @@ public abstract class RobotUnit extends Thread{
 		if (!collisionStatus) this.moveUnit(timeSample);
 		else{
 			stopUnit();
-			//Position currPos = getPosition();
-			//Position oldPos = unitObj.getOldPos();
-			//if((currPos.x == oldPos.x)&&(currPos.y == oldPos.y)){this.moveUnit(timeSample);}
-			//else{ unitObj.resetToOldPosition(); }
-			//unitObj.resetToOldPosition();
 		}		
 	}//evaluateMovement
 
@@ -137,7 +131,6 @@ public abstract class RobotUnit extends Thread{
 
 	public void moveUnit(double timeSample){ //Viene chiamato da UnitsManager. Crea così l'autonomia del robot
 		Position currPos = unitObj.getExactPos();
-		//System.out.println(currPos.toString());		 
 		Position newPos = null;
 		if(Math.abs(wK) < 0.001) newPos = metodo_RungeKutta(currPos,vK,0,timeSample);
 		else newPos = metodo_Esatto(currPos,vK,wK,timeSample);
@@ -173,7 +166,6 @@ public abstract class RobotUnit extends Thread{
 	/************************************************************************************************/
 
 	private Position metodo_RungeKutta(Position currPos, double vK, double wK, double timeSample){
-		//System.out.println("Utilizzo metodo_RK");
 		double nextTheta = (currPos.theta + wK*timeSample)%(2*Math.PI);
 		double nextPosX = currPos.x + vK*timeSample*Math.cos(currPos.theta + wK*timeSample/2);
 		double nextPosY = currPos.y + vK*timeSample*Math.sin(currPos.theta + wK*timeSample/2);
@@ -184,41 +176,11 @@ public abstract class RobotUnit extends Thread{
 	/************************************************************************************************/
 
 	private Position metodo_Esatto(Position currPos, double vK, double wK, double timeSample){
-		//System.out.println("Utilizzo metodo_Esatto");
 		double nextTheta = (currPos.theta + wK*timeSample)%(2*Math.PI);
 		double nextPosX = currPos.x + (vK/wK)*(Math.sin(nextTheta) - Math.sin(currPos.theta));
 		double nextPosY = currPos.y - (vK/wK)*(Math.cos(nextTheta) - Math.cos(currPos.theta));		
 		Position newPos = new Position(nextPosX,nextPosY,nextTheta);
 		return newPos;
 	}//metodoEsatto
-
-	/*********************************************************************************************************/
-
-	/******************************************************************************************************
-
-		private boolean goToLocation(Point2D newLocation){		
-			Point2D unitLoc =  unitID.getPos();
-			double unitAngle = unitID.getAngle();
-			System.out.println("RU.goToLocation>UnitLocation: "+unitLoc+"; destination: "+newLocation);
-			System.out.println("RU.goToLocation>UnitAngle: "+unitAngle);	
-			int alpha = findAngle(unitAngle,unitLoc,newLocation);						
-			unitObj.ruotaDi(alpha);			
-			double distance = unitLoc.distance(newLocation);
-			boolean collided = unitObj.muoviDi(distance);		
-			return !collided;
-		}//end goToLocation
-
-	/******************************************************************************************************
-
-		private int findAngle(double unitAngle, Point2D unitLoc, Point2D destPoint){
-			double alphaR = Math.atan2(unitLoc.getY() - destPoint.getY(), destPoint.getX() - unitLoc.getX());			
-			if (alphaR < 0) alphaR += 2*Math.PI;
-			if (unitAngle < 0) unitAngle += 2*Math.PI;
-			double deltaR = alphaR - unitAngle;
-			if (deltaR < - Math.PI) deltaR +=  2*Math.PI; //servono per ruotare verso la direzione più corta.
-			if (deltaR >  Math.PI) deltaR -=  2*Math.PI;
-			return (int)Math.toDegrees(deltaR);					
-		}//findAngle
-	 */
 
 }//end RobotUnit

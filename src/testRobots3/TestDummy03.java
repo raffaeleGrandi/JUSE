@@ -39,7 +39,6 @@ public class TestDummy03 extends RobotDummy {
 	}//end executeLoop	
 	
 	private void sleepSimTime(double st_val){		
-		//while(this.tsCounter)
 		try { Thread.sleep((int) st_val*1000); } 
 		catch (InterruptedException e) { e.printStackTrace(); }		
 	}//sleepTime	
