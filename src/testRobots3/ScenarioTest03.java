@@ -1,11 +1,6 @@
 package testRobots3;
 
-import java.awt.Color;
-import java.awt.Dimension;
-
-import jusePack.ArenaObjects.Obstacle;
 import jusePack.structures.ScenarioManager;
-import jusePack.utils.Const;
 import jusePack.utils.Position;
 
 public class ScenarioTest03 extends ScenarioManager {
