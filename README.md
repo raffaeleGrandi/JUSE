@@ -20,6 +20,13 @@ Intelligence and for many other thesis.
 The thin circle around each robot is its infrared sensing range. Scenarios 05 and 06
 were added in 2026; see below.
 
+## Video
+
+[Robot Swarm driven by Particle Swarm Optimization algorithm](https://www.youtube.com/watch?v=RLIA1EKfSys)
+(YouTube, March 2009): a video from the thesis work, in which a swarm of simulated robots,
+driven by Particle Swarm Optimization, reaches a target while avoiding obstacles they do not
+know in advance. The PSO code is not in this repository (yet).
+
 ## Repository layout
 
 | Folder | Contents |
